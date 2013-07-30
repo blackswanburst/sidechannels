@@ -1,15 +1,22 @@
 This is a collection of time baseded side-channel tools.
 
-Enum-OpenSSH.py is a file that enumerates OpenSSH 5.x and 6.X users. 
+Enum-OpenSSH.py is a file that enumerates OpenSSH 5.x and 6.X users. The bug was
+discovered back in 2006 by Marco Ivaldi, and I read about it here:
+
+https://cureblog.de/2013/07/openssh-user-enumeration-time-based-attack/
+
+I chose to write my own code for learning purposes.Its now been tested on both LANs 
+and WANs, for versions 5.3, 5.3p1, 5.9p1, 6.0p1. 
+
 Initially it works from a list of common users, and if it finds one, it appends
 that user back to the top of the list when it write back out. This keeps the list
 of users loosely ranked over multiple runs. Then it moves on to brute forcing if
-the user wishes to do so. Again if auser is found it is added to the list.
+the user wishes to do so. Again if a user is found it is added to the list, to 
+improve future uses.
 
-The vulnerability is hardware dependant. I have found that an old machine on a local
-lan works well, but a remote machine on a VM does not exhibit the bug despite being
-the correct versions of OpenSSH. Obviously, latency is an issue as well, which can 
-affect the accuracy.
+During testing it has been discovered that users without passwords, or who are not
+allowed SSH users will not be discovered (Makes sense, but stated here for clarity).
+For example this is why root is sometimes not discovered on a linux machine.
 
-Future improvement will be to remove the hardcoding of the timeout, and produce a
-test of latency and detection of the two mean RTTs.
+Shout outs go to @t3rminalV & @reverseICS for providing machines to do the WAN testing
+and to Fernando Arnaboldi for suggestions to improve usability.
