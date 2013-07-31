@@ -210,5 +210,3 @@ if ans == "y":
 					f.close();
 				results.append((name,dur))
 	sys.stdout.write('\n')
-	(e, _) = cluster(results)
-	display(e)
