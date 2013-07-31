@@ -129,13 +129,20 @@ def is_ipv4(ip):
 	except socket.error,e:
 		return False
 
+#This is function to estimate the time to completion for bruteoforcing
+def etc(avg_rtt, min_len, max_len):
+	etc = 0
+	for i in range(min_len-1,max_len):
+		etc += avg_rtt*(36**i)
+	return etc
+
 #Begin the main program
 machine = raw_input("Enter the IPv4 address to enumerate SSH users on: ")
 if is_ipv4(machine):
 	if is_private(machine):
 		pass_len = 3000
 	else:
-		pass_len = 20000
+		pass_len = 25000
 else:
 	print "Please go read RFC 791 and then use a legitimate IPv4 address."
 	sys.exit()
@@ -168,7 +175,7 @@ for j,_ in existing:
 	found.append(j)
 avg_rtt = average(nonexisting)
 #print avg_rtt
-#print results
+print results
 results = []
 print "We have exhausted our common username list."
 ans = raw_input("Would you like to brute force other names (y/n)? ")
@@ -176,7 +183,7 @@ if ans == "y":
 	#Dictionary List exhausted, let's bruteforce
 	min_len = raw_input("Enter the min user name length (inclusive): ")
 	max_len = raw_input("Enter the max user name length (inclusive): ")
-	time_estimate = (avg_rtt*(36**math.factorial(int(max_len)) - 36**(math.factorial(int(min_len)-1))))
+	time_estimate = etc(avg_rtt, int(min_len), int(max_len))
 	time_estimate = time_estimate/60
 	if time_estimate == 0:
 		print "This will take about a minute."
@@ -185,11 +192,11 @@ if ans == "y":
 	elif time_estimate < 1440:
 		time_estimate = time_estimate/60
 		print "This will take approximately %d hours." % time_estimate
-	elif time_estimate < 43200:
+	elif time_estimate < 43800:
 		time_estimate = time_estimate/1440
 		print "This will take approximately %d days." % time_estimate
 	else:
-		time_estimate = time_estimate/43200
+		time_estimate = time_estimate/43800
 		print "This will take approximately %d months." % time_estimate
 	print "However, you will be informed as soon as a user is found."
 	tested = 0
