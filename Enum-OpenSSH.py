@@ -175,7 +175,7 @@ for j,_ in existing:
 	found.append(j)
 avg_rtt = average(nonexisting)
 #print avg_rtt
-print results
+#print results
 results = []
 print "We have exhausted our common username list."
 ans = raw_input("Would you like to brute force other names (y/n)? ")
@@ -215,5 +215,4 @@ if ans == "y":
 					f = open('Ranked-Users.txt', 'a');
 					f.write(name+'\n');
 					f.close();
-				results.append((name,dur))
 	sys.stdout.write('\n')
