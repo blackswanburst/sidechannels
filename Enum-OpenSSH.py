@@ -103,7 +103,7 @@ def sidechan(user,machine,pass_len):
 	#simple time calculation
 	timeRes = timeDone-timeStart
 	#Statement below useful for debugging
-	#print "User "+user+" took %d" % timeRes
+	print "User "+user+" took %d" % timeRes
 	return timeRes
 
 def display(existing):
@@ -161,8 +161,8 @@ sys.stdout.write('\r'+str(progress)+'/'+str(len(users))+' users tested...')
 sys.stdout.flush()
 progress += 1
 for user in users:
-	sys.stdout.write('\r'+str(progress)+'/'+str(len(users))+' users tested...')
-	sys.stdout.flush()
+	#sys.stdout.write('\r'+str(progress)+'/'+str(len(users))+' users tested...')
+	#sys.stdout.flush()
 	dur = sidechan(user,machine,pass_len)
 	results.append((user,dur))
 	progress += 1
@@ -177,7 +177,7 @@ found = []
 for j,_ in existing:
 	found.append(j)
 avg_rtt = average(nonexisting)
-#print avg_rtt
+print avg_rtt
 #print results
 results = []
 print "We have exhausted our common username list."
@@ -204,7 +204,7 @@ if ans == "y":
 	print "However, you will be informed as soon as a user is found."
 	tested = 0
 	for i in range(int(min_len), int(max_len)+1, 1):
-		x = itertools.permutations('etaoinshrdlcumwfgypbvkjxqz1234567890', i)
+		x = itertools.product('etaoinshrdlcumwfgypbvkjxqz1234567890', repeat=i)
 		for tup in x:
 			name = ''
 			for element in tup:
@@ -218,4 +218,4 @@ if ans == "y":
 					f = open('Ranked-Users.txt', 'a');
 					f.write(name+'\n');
 					f.close();
-	sys.stdout.write('\n')
+	#sys.stdout.write('\n')
